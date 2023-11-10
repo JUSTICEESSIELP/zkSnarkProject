@@ -23,8 +23,7 @@ const POLYGON_MAINNET_RPC_URL =
   "https://polygon-mainnet.alchemyapi.io/v2/your-api-key";
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
 
-const etherscanApiKey =
-  process.env.ETHERSCAN_API_KEY || "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW";
+const etherscanApiKey = "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW";
 
 const MNEMONIC = process.env.MNEMONIC || "your mnemonic";
 
@@ -45,14 +44,21 @@ export default {
       },
     },
   },
-  defaultNetwork: "localhost",
+  defaultNetwork: "optimismGoerli",
   namedAccounts: {
     deployer: {
-      // By default, it will take the first Hardhat account as the deployer
-      default: 0,
+      default: 0, // here this will by default take the first account as deployer
+      1: 0, // similarly on mainnet it will take the first account as deployer. Note though that depending on how hardhat network are configured, the account 0 on one network can be different than on another
+    },
+    player: {
+      default: 1,
     },
   },
-  verify: { etherscan: { apiKey: `${etherscanApiKey}` } },
+  verify: {
+    etherscan: {
+      apiKey: "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW",
+    },
+  },
   networks: {
     hardhat: {
       chainId: 31337,
