@@ -35,7 +35,15 @@ const REPORT_GAS = process.env.REPORT_GAS || false;
 
 export default {
   solidity: {
-    version: "0.8.17",
+    compilers: [
+      {
+        version: "0.8.17",
+      },
+      {
+        version: "0.8.0",
+      },
+    ],
+
     settings: {
       optimizer: {
         enabled: true,
@@ -56,7 +64,9 @@ export default {
   },
   verify: {
     etherscan: {
-      apiKey: "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW",
+      apiKey: {
+        goerli: "y",
+      },
     },
   },
   networks: {
@@ -66,8 +76,14 @@ export default {
     localhost: {
       chainId: 31337,
     },
+
+    goerli: {
+      url: `https://eth-goerli.alchemyapi.io/v2/${providerApiKey}`,
+      accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
+      saveDeployments: true,
+    },
     sepolia: {
-      url: SEPOLIA_RPC_URL,
+      url: `https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`,
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       saveDeployments: true,
       chainId: 11155111,

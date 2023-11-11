@@ -53,4 +53,6 @@ template Withdraw() {
     recipientSquare <== recipient * recipient;
 }
 
+// by making these : root , nullifierHash and recipient public you are saying they are inputs 
+//for the verifier.sol gotten from the circuit 
 component main {public [root, nullifierHash, recipient]} = Withdraw();

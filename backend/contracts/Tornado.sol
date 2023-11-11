@@ -6,6 +6,7 @@ pragma solidity 0.8.17;
 import "./ReentrancyGuard.sol";
 // this is just a hashing procedure does several rounds of hashing based on an equation and then makes it computationally impossible  to reverse [the logarithmic problem ]
 import "./MiMCSponge.sol";
+import "./ifaces/IVerifier.sol";
 
 contract Tornado is ReentrancyGuard {
 
@@ -60,9 +61,9 @@ uint256[10] levelDefaults = [
 
 //we create a verfier smart contract from the withdrwal circom file to prove we are the right people to withdraw 
 
-    constructor(address _hasher){
+    constructor(address _hasher, address verifierAddress){
         hasher = Hasher(_hasher);
-        //verifier = verifierAddress;
+        verifier = verifierAddress;
 
     
 
@@ -150,6 +151,43 @@ uint256[10] levelDefaults = [
 
         
 
+
+    }
+
+    function withdraw(
+        uint256[2] calldata a,
+        uint256[2][2] calldata b, 
+        uint256[2] calldata c,
+        uint256[2] calldata input // this is the nullifyhash and the commitment hash
+    ) public  nonReentrant{
+
+        // we make variables for the output variables of our withdraw circuit
+        uint256 depositRoot = input[0];
+        uint256 nulliferHash = input[1];
+        // we dont expose the recipient address in the smart contract 
+        uint256 _addressofWithdraw = uint256(uint160(msg.sender));
+
+        require(roots[depositRoot], "no-root");
+        require(!nulliferHashes[nulliferHash], "Cannot withdraw twice");
+
+        // now lets verify if the information from the circuit is right so we call the Verifier contract
+        (bool ok,) = verifier.call(abi.encodeCall(IVerifier.verifyProof, (a, b, c, [depositRoot, nulliferHash, _addressofWithdraw])));
+
+        require(ok , "Invalid Proof");
+        nulliferHashes[nulliferHash] = true;
+
+
+       address payable _addrr = payable(msg.sender);
+
+      (bool success,) = _addrr.call{value: denomination, gas: 5000}(
+            "");
+               require(success , "Sending error");
+
+        
+
+        emit Withdrawal(_addrr, nulliferHash );
+
+        
 
     }
 }
